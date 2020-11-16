@@ -7,6 +7,10 @@ const activitySlice = createSlice({
   initialState: {
     currentTime: 0,
     status: false,
+    notFinished: null,
+    finishedTime: null,
+    loading: false,
+    error: null,
   },
   reducers: {
     setTime: (state, data) => {
@@ -15,13 +19,33 @@ const activitySlice = createSlice({
     setStatus: (state, data) => {
       state.status = data.payload;
     },
+    setFinishedTime: (state, data) => {
+      state.finishedTime = data.payload;
+    },
+    setLoading: (state, data) => {
+      state.loading = data.payload;
+    },
+    setError: (state, data) => {
+      state.error = data.payload;
+    },
     tick: (state) => {
       state.currentTime += 1;
+    },
+    setNotFinished: (state, data) => {
+      state.notFinished = data.payload;
     },
   },
 });
 
-export const { setTime, setStatus, tick } = activitySlice.actions;
+export const {
+  setTime,
+  setStatus,
+  tick,
+  setNotFinished,
+  setFinishedTime,
+  setError,
+  setLoading,
+} = activitySlice.actions;
 
 const getApiURI = () => {
   if (process.env.NODE_ENV === 'production') {
@@ -84,15 +108,48 @@ export const toggleActivity = (): AppThunk => {
           },
         }
       );
-      if (response.status !== 200) {
+      if (response.status === 201) {
         const data = await response.json();
         dispatch(setActivityData(data));
-      } else {
-        console.log('ERROR');
+      } else if (response.status === 405) {
+        const data = await response.json();
+        dispatch(setNotFinished(data));
       }
     } catch (error) {
       // pass
     }
+  };
+};
+
+export const finishLastDay = (): AppThunk => {
+  return async (dispatch, getState) => {
+    dispatch(setLoading(true));
+    const { token } = getState().auth;
+    const { notFinished, finishedTime } = getState().activity;
+    try {
+      const response = await fetch(
+        `${getApiURI()}/api/v1/activity/${notFinished.date}/`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          method: 'PATCH',
+          body: JSON.stringify({ end_at: finishedTime }),
+        }
+      );
+      if (response.status === 200) {
+        // const data = await response.json();
+        dispatch(setNotFinished(null));
+        dispatch(toggleActivity());
+      } else {
+        const data = await response.json();
+        dispatch(setError(data));
+      }
+    } catch (error) {
+      // pass
+    }
+    dispatch(setLoading(false));
   };
 };
 

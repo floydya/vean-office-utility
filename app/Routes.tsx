@@ -3,7 +3,7 @@ import { Spin } from 'antd';
 import { SpinProps } from 'antd/lib/spin';
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, Redirect } from 'react-router-dom';
 import App from './containers/App';
 import { RootState } from './store';
 
@@ -14,6 +14,10 @@ const LazyLoginPage = React.lazy(() =>
 
 const LazyHomePage = React.lazy(() =>
   import(/* webpackChunkName: "HomePage" */ './containers/HomePage')
+);
+
+const LazyMonthPage = React.lazy(() =>
+  import(/* webpackChunkName: "MonthPage" */ './containers/MonthPage')
 );
 
 const Loading: React.FC<SpinProps> = (props) => (
@@ -41,12 +45,23 @@ const HomePage = (props: Record<string, any>) => (
   </React.Suspense>
 );
 
+const MonthPage = (props: Record<string, any>) => {
+  const token = useSelector((state: RootState) => state.auth.token);
+  if (!token) return <Redirect to="/" />;
+  return (
+    <React.Suspense fallback={<Loading tip="Загрузка..." />}>
+      <LazyMonthPage {...props} />
+    </React.Suspense>
+  );
+};
+
 export default function Routes() {
   const token = useSelector((state: RootState) => state.auth.token);
   return (
     <App>
       <Switch>
-        <Route path="/" component={!token ? LoginPage : HomePage} />
+        <Route path="/" exact component={!token ? LoginPage : HomePage} />
+        <Route path="/month" exact component={MonthPage} />
       </Switch>
     </App>
   );
