@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { getApiURI } from '../../api/config';
 // eslint-disable-next-line import/no-cycle
 import { AppThunk, RootState } from '../../store';
 
@@ -47,16 +48,9 @@ export const {
   setLoading,
 } = activitySlice.actions;
 
-const getApiURI = () => {
-  if (process.env.NODE_ENV === 'production') {
-    return 'https://cr.vean-tattoo.com';
-  }
-  return 'http://localhost:8000';
-};
-
-const setActivityData = (data: any): AppThunk => {
+const setActivityData = (data: Record<string, unknown>): AppThunk => {
   return (dispatch) => {
-    if (data) {
+    if (Object.keys(data).length > 0) {
       dispatch(setStatus(!data.is_ended));
       dispatch(setTime(data.spent_time));
     } else {

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import * as React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert, Button, Form, Input, Layout } from 'antd';
@@ -9,12 +10,19 @@ import {
   setPassword,
   setUsername,
 } from './login.store';
+import { RootState } from '../../store';
 
 export default function LoginComponent() {
   const dispatch = useDispatch();
+  const { username, password } = useSelector((state: RootState) => state.auth);
   const errors = useSelector(selectErrors);
   const loading = useSelector(selectLoading);
   const [form] = Form.useForm();
+  React.useEffect(() => {
+    if (username && password) {
+      dispatch(authenticate());
+    }
+  }, []);
   return (
     <Layout>
       <Layout.Content>
@@ -43,6 +51,7 @@ export default function LoginComponent() {
               name="username"
               validateStatus={errors?.username && 'error'}
               help={errors?.username}
+              initialValue={username}
               rules={[
                 {
                   required: true,
@@ -60,6 +69,7 @@ export default function LoginComponent() {
               name="password"
               validateStatus={errors?.password && 'error'}
               help={errors?.password}
+              initialValue={password}
               rules={[
                 {
                   required: true,

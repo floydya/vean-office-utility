@@ -11,7 +11,7 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, Menu, Tray } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
@@ -48,6 +48,17 @@ const installExtensions = async () => {
   ).catch(console.log);
 };
 
+const RESOURCES_PATH = app.isPackaged
+  ? path.join(process.resourcesPath, 'resources')
+  : path.join(__dirname, '../resources');
+
+const getAssetPath = (...paths: string[]): string => {
+  return path.join(RESOURCES_PATH, ...paths);
+};
+
+let appIcon = null;
+let isQuiting: boolean;
+
 const createWindow = async () => {
   if (
     process.env.NODE_ENV === 'development' ||
@@ -56,17 +67,13 @@ const createWindow = async () => {
     await installExtensions();
   }
 
-  const RESOURCES_PATH = app.isPackaged
-    ? path.join(process.resourcesPath, 'resources')
-    : path.join(__dirname, '../resources');
-
-  const getAssetPath = (...paths: string[]): string => {
-    return path.join(RESOURCES_PATH, ...paths);
-  };
+  // app.setLoginItemSettings({
+  //   openAtLogin: Boolean(localStorage.getItem('openAtLogin') || false),
+  // });
 
   mainWindow = new BrowserWindow({
     show: false,
-    width: 500,
+    width: 640,
     height: 728,
     resizable: false,
     icon: getAssetPath('icon.png'),
@@ -81,6 +88,50 @@ const createWindow = async () => {
             preload: path.join(__dirname, 'dist/renderer.prod.js'),
           },
   });
+
+  mainWindow.on('close', (event) => {
+    if (!isQuiting) {
+      event.preventDefault();
+      mainWindow.hide();
+      event.returnValue = false;
+    }
+  });
+
+  app
+    .whenReady()
+    .then((e) => {
+      appIcon = new Tray(getAssetPath('icons/16x16.png'));
+      const trayMenuTemplate = [
+        {
+          label: 'Показать',
+          click() {
+            mainWindow.show();
+          },
+        },
+        {
+          label: 'Запуск при старте',
+          type: 'checkbox',
+          click() {
+            app.setLoginItemSettings({
+              openAtLogin: !app.getLoginItemSettings().openAtLogin,
+            });
+          },
+          checked: app.getLoginItemSettings().openAtLogin,
+        },
+        {
+          label: 'Выйти',
+          click() {
+            isQuiting = true;
+            app.quit();
+          },
+        },
+      ];
+
+      const trayMenu = Menu.buildFromTemplate(trayMenuTemplate);
+      appIcon.setContextMenu(trayMenu);
+      return e;
+    })
+    .catch(console.log);
 
   mainWindow.loadURL(`file://${__dirname}/app.html`);
 

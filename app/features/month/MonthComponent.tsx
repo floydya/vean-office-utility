@@ -1,16 +1,29 @@
-import { Result, Button } from 'antd';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { Collapse } from 'antd';
 import * as React from 'react';
-import { SmileOutlined } from '@ant-design/icons';
+import { useDispatch, useSelector } from 'react-redux';
 import LayoutApp from '../../containers/Layout';
+import { RootState } from '../../store';
+import { fetchActivities } from './month.store';
+import MonthHeaderFilter from './MonthHeaderFilter';
+import MonthList from './MonthList';
+import MonthStatistic from './MonthStatistic';
 
 export default function MonthComponent() {
+  const { month, year } = useSelector((state: RootState) => state.activities);
+  const dispatch = useDispatch();
+  React.useEffect(() => {
+    dispatch(fetchActivities());
+  }, [month, year]);
   return (
     <LayoutApp>
-      <Result
-        icon={<SmileOutlined />}
-        title="Раздел находится в разработке!"
-        extra={<Button type="primary">Next</Button>}
-      />
+      <MonthHeaderFilter />
+      <MonthStatistic />
+      <Collapse>
+        <Collapse.Panel header="Подробнее по каждому дню" key="1">
+          <MonthList />
+        </Collapse.Panel>
+      </Collapse>
     </LayoutApp>
   );
 }

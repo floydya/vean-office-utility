@@ -1,8 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
+import UserAPI from '../../api/user.service';
 // eslint-disable-next-line import/no-cycle
 import { AppThunk, RootState } from '../../store';
 
-const getData = (name: string, defaultValue: any = null) => {
+const getData = (name: string, defaultValue: string | null = null) => {
   return localStorage.getItem(name) || defaultValue;
 };
 
@@ -63,31 +64,20 @@ export const {
   setLoading,
 } = authSlice.actions;
 
-const getApiURI = () => {
-  if (process.env.NODE_ENV === 'production') {
-    return 'https://cr.vean-tattoo.com';
-  }
-  return 'http://localhost:8000';
-};
-
 export const authenticate = (): AppThunk => {
   return async (dispatch, getState) => {
     const { username, password } = getState().auth;
     dispatch(setErrors(null));
     dispatch(setLoading(true));
     try {
-      const response = await fetch(`${getApiURI()}/api/v1/auth/jwt/obtain/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password, parlor: null }),
+      const [status, response] = await UserAPI.authorize({
+        username,
+        password,
       });
-      if (response.status !== 200) {
-        const errors = await response.json();
-        dispatch(setErrors(errors));
+      if (status !== 200) {
+        dispatch(setErrors(response));
       } else {
-        const { token, user } = await response.json();
+        const { token, user } = response;
         dispatch(setToken(token));
         dispatch(setUser(user));
       }
@@ -102,19 +92,12 @@ export const fetchUser = (): AppThunk => {
   return async (dispatch, getState) => {
     try {
       const { token } = getState().auth;
-      const response = await fetch(`${getApiURI()}/api/v1/auth/current/`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (response.status !== 200) {
+      const [status, response] = await UserAPI.fetchCurrentUser(token);
+      if (status !== 200) {
         dispatch(removeUser());
         dispatch(removeToken());
       } else {
-        const user = await response.json();
-        dispatch(setUser(user));
+        dispatch(setUser(response));
       }
     } catch (error) {
       // pass

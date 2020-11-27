@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Button, Form, Statistic, TimePicker } from 'antd';
 import { remote } from 'electron';
 import React from 'react';
@@ -61,7 +62,9 @@ function CurrentTimerComponent({ direction }: Props) {
 }
 
 function NotFinishedTimerComponent({ direction }: Props) {
-  const { notFinished, loading, error } = useSelector((state: RootState) => state.activity);
+  const { notFinished, loading, error } = useSelector(
+    (state: RootState) => state.activity
+  );
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   return (
@@ -71,7 +74,8 @@ function NotFinishedTimerComponent({ direction }: Props) {
         justifyContent: direction === 'column' ? 'center' : 'space-between',
         alignItems: (direction === 'column' && 'center') as string,
         height: (direction === 'column' && 'calc(100vh - 64px)') as string,
-        flexDirection: direction,
+        flexDirection: 'column',
+        textAlign: 'center',
       }}
     >
       <h3>У вас не завершен рабочий день!</h3>
