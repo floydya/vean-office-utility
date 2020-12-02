@@ -12,17 +12,10 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
 import { app, BrowserWindow, Menu, Tray } from 'electron';
-import { autoUpdater } from 'electron-updater';
-import log from 'electron-log';
+// import { autoUpdater } from 'electron-updater';
+import logger from 'electron-log';
+import Updater from 'update-electron-app';
 import MenuBuilder from './menu';
-
-export default class AppUpdater {
-  constructor() {
-    log.transports.file.level = 'info';
-    autoUpdater.logger = log;
-    autoUpdater.checkForUpdatesAndNotify();
-  }
-}
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -92,46 +85,62 @@ const createWindow = async () => {
   mainWindow.on('close', (event) => {
     if (!isQuiting) {
       event.preventDefault();
-      mainWindow.hide();
+      mainWindow?.hide();
       event.returnValue = false;
     }
   });
 
-  app
-    .whenReady()
-    .then((e) => {
-      appIcon = new Tray(getAssetPath('icons/16x16.png'));
-      const trayMenuTemplate = [
-        {
-          label: 'Показать',
-          click() {
-            mainWindow.show();
-          },
+  const createTray = () => {
+    appIcon = new Tray(getAssetPath('icons/16x16.png'));
+    const trayMenuTemplate = [
+      {
+        label: 'Показать',
+        click() {
+          mainWindow?.show();
         },
-        {
-          label: 'Запуск при старте',
-          type: 'checkbox',
-          click() {
-            app.setLoginItemSettings({
-              openAtLogin: !app.getLoginItemSettings().openAtLogin,
-            });
-          },
-          checked: app.getLoginItemSettings().openAtLogin,
+      },
+      {
+        label: 'Запуск при старте',
+        type: 'checkbox',
+        click() {
+          app.setLoginItemSettings({
+            openAtLogin: !app.getLoginItemSettings().openAtLogin,
+          });
         },
-        {
-          label: 'Выйти',
-          click() {
-            isQuiting = true;
-            app.quit();
-          },
+        checked: app.getLoginItemSettings().openAtLogin,
+      },
+      {
+        label: 'Выйти',
+        click() {
+          isQuiting = true;
+          app.quit();
         },
-      ];
+      },
+    ];
 
-      const trayMenu = Menu.buildFromTemplate(trayMenuTemplate);
-      appIcon.setContextMenu(trayMenu);
-      return e;
-    })
-    .catch(console.log);
+    appIcon.on('double-click', () => {
+      if (mainWindow?.isVisible()) {
+        mainWindow?.hide();
+      } else {
+        mainWindow?.show();
+      }
+    });
+    const trayMenu = Menu.buildFromTemplate(trayMenuTemplate);
+    appIcon.setContextMenu(trayMenu);
+    return appIcon;
+  };
+  let tray: Tray | null = null;
+  mainWindow.on('minimize', (e: Event) => {
+    e.preventDefault();
+    mainWindow?.hide();
+    mainWindow?.setSkipTaskbar(true);
+    tray = createTray();
+  });
+  mainWindow.on('restore', () => {
+    mainWindow?.show();
+    mainWindow?.setSkipTaskbar(false);
+    tray?.destroy();
+  });
 
   mainWindow.loadURL(`file://${__dirname}/app.html`);
 
@@ -156,9 +165,11 @@ const createWindow = async () => {
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 
-  // Remove this if your app does not use auto updates
-  // eslint-disable-next-line
-  new AppUpdater();
+  Updater({
+    repo: 'floydya/vean-office-utility',
+    updateInterval: '10 minutes',
+    logger,
+  });
 };
 
 /**

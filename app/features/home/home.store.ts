@@ -1,18 +1,36 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { getApiURI } from '../../api/config';
+import TimerAPI from '../../api/timer.service';
 // eslint-disable-next-line import/no-cycle
 import { AppThunk, RootState } from '../../store';
 
+type NotFinishedType = { date: string } | null;
+interface ActivityLog {
+  created_at: string;
+  action: string;
+}
+interface SliceState {
+  currentTime: number;
+  status: boolean;
+  notFinished: NotFinishedType;
+  finishedTime: string;
+  loading: boolean;
+  error: ErrorType;
+  logs: ActivityLog[];
+}
+
+const initialState: SliceState = {
+  currentTime: 0,
+  status: false,
+  notFinished: null,
+  finishedTime: '',
+  loading: false,
+  error: null,
+  logs: [],
+};
+
 const activitySlice = createSlice({
   name: 'activity',
-  initialState: {
-    currentTime: 0,
-    status: false,
-    notFinished: null,
-    finishedTime: null,
-    loading: false,
-    error: null,
-  },
+  initialState,
   reducers: {
     setTime: (state, data) => {
       state.currentTime = data.payload;
@@ -28,6 +46,9 @@ const activitySlice = createSlice({
     },
     setError: (state, data) => {
       state.error = data.payload;
+    },
+    setLogs: (state, data) => {
+      state.logs = data.payload;
     },
     tick: (state) => {
       state.currentTime += 1;
@@ -45,6 +66,7 @@ export const {
   setNotFinished,
   setFinishedTime,
   setError,
+  setLogs,
   setLoading,
 } = activitySlice.actions;
 
@@ -53,9 +75,11 @@ const setActivityData = (data: Record<string, unknown>): AppThunk => {
     if (Object.keys(data).length > 0) {
       dispatch(setStatus(!data.is_ended));
       dispatch(setTime(data.spent_time));
+      dispatch(setLogs(data.logs));
     } else {
       dispatch(setTime(0));
       dispatch(setStatus(false));
+      dispatch(setLogs([]));
     }
   };
 };
@@ -65,21 +89,14 @@ export const fetchActivity = (): AppThunk => {
     const { token } = getState().auth;
     try {
       const currentDate = new Date().toISOString().substring(0, 10);
-      const response = await fetch(
-        `${getApiURI()}/api/v1/activity/${currentDate}/`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const [status, response] = await TimerAPI.fetchTimer(
+        token as string,
+        currentDate
       );
-      if (response.status !== 200) {
+      if (status !== 200) {
         // pass
       } else {
-        const data = await response.json();
-        dispatch(setActivityData(data));
-        // const { activity } = response.json();
+        dispatch(setActivityData(response));
       }
     } catch (error) {
       // pass
@@ -92,22 +109,14 @@ export const toggleActivity = (): AppThunk => {
     const { token } = getState().auth;
     try {
       const currentDate = new Date().toISOString().substring(0, 10);
-      const response = await fetch(
-        `${getApiURI()}/api/v1/activity/${currentDate}/`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const [status, response] = await TimerAPI.toggleTimer(
+        token as string,
+        currentDate
       );
-      if (response.status === 201) {
-        const data = await response.json();
-        dispatch(setActivityData(data));
-      } else if (response.status === 405) {
-        const data = await response.json();
-        dispatch(setNotFinished(data));
+      if (status === 201) {
+        dispatch(setActivityData(response));
+      } else if (status === 405) {
+        dispatch(setNotFinished(response));
       }
     } catch (error) {
       // pass
@@ -121,24 +130,16 @@ export const finishLastDay = (): AppThunk => {
     const { token } = getState().auth;
     const { notFinished, finishedTime } = getState().activity;
     try {
-      const response = await fetch(
-        `${getApiURI()}/api/v1/activity/${notFinished.date}/`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          method: 'PATCH',
-          body: JSON.stringify({ end_at: finishedTime }),
-        }
+      const [status, response] = await TimerAPI.finishLastDay(
+        token as string,
+        notFinished?.date as string,
+        finishedTime
       );
-      if (response.status === 200) {
-        // const data = await response.json();
+      if (status === 200) {
         dispatch(setNotFinished(null));
         dispatch(toggleActivity());
       } else {
-        const data = await response.json();
-        dispatch(setError(data));
+        dispatch(setError(response));
       }
     } catch (error) {
       // pass
@@ -151,8 +152,3 @@ export default activitySlice.reducer;
 
 export const selectTime = (state: RootState) => state.activity.currentTime;
 export const selectStatus = (state: RootState) => state.activity.status;
-
-// export const selectToken = (state: RootState) => state.auth.token;
-// export const selectUser = (state: RootState) => state.auth.user;
-// export const selectErrors = (state: RootState) => state.auth.errors;
-// export const selectLoading = (state: RootState) => state.auth.loading;

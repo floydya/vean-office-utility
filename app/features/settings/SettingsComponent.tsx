@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { Button, Form, InputNumber } from 'antd';
+import { Button, Form, InputNumber, Typography } from 'antd';
+import { machineIdSync } from 'node-machine-id';
 import * as React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router';
 import { RootState } from '../../store';
+import { resetAuthentication } from '../login/login.store';
 import { setHoursPerDay, setSalary } from './settings.store';
 
 const salaryFormatter = (value: string | number | undefined) =>
@@ -32,8 +34,9 @@ const SettingsComponent: React.FC<SettingsProps> = ({
       <Form.Item
         labelAlign="left"
         name="salary"
-        label="Ставка за месяц"
+        label="Ставка"
         initialValue={salary}
+        extra="Укажите вашу ставку за месяц."
         rules={[
           {
             required: true,
@@ -53,6 +56,7 @@ const SettingsComponent: React.FC<SettingsProps> = ({
         name="hours_per_day"
         label="Часов в день"
         initialValue={hours_per_day}
+        extra="Укажите количество часов, которые нужно отработать за день."
         rules={[
           {
             required: true,
@@ -66,6 +70,31 @@ const SettingsComponent: React.FC<SettingsProps> = ({
           onChange={(value) => dispatch(setHoursPerDay(value))}
         />
       </Form.Item>
+      <Form.Item
+        labelAlign="left"
+        label="Токен авторизации"
+        extra="Этот токен нужен для активации таймера в отсутствие интернета."
+      >
+        <Typography.Paragraph copyable ellipsis style={{ marginBottom: 0 }}>
+          {machineIdSync()}
+        </Typography.Paragraph>
+      </Form.Item>
+      {!configuration && (
+        <Form.Item
+          labelAlign="left"
+          label="Сброс авторизации"
+          extra="Если возникли проблемы с авторизацией или нужно перезайти на другой аккаунт - жмём сюда."
+        >
+          <Button
+            style={{ width: '100%' }}
+            htmlType="button"
+            type="ghost"
+            onClick={() => dispatch(resetAuthentication())}
+          >
+            Сбросить
+          </Button>
+        </Form.Item>
+      )}
       {configuration && (
         <Form.Item wrapperCol={{ span: 24 }} style={{ textAlign: 'center' }}>
           <Button htmlType="submit" type="primary">

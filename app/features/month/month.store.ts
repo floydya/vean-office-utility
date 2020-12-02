@@ -11,12 +11,20 @@ const getMonthRange = (month: number, year: number) => {
     .set('year', year);
   const endMoment = currentMoment.clone().add(1, 'month');
   // console.log(currentMoment, endMoment);
-  const data = [currentMoment.format('YYYY-MM-DD')];
+  const data = [];
   while (currentMoment.isBefore(endMoment)) {
-    currentMoment = currentMoment.add(1, 'day');
     data.push(currentMoment.format('YYYY-MM-DD'));
+    currentMoment = currentMoment.add(1, 'day');
   }
   return data;
+};
+
+const getCurrentMonthAndYear = () => {
+  const currentMoment = dayjs();
+  if (currentMoment.date() < 10) {
+    return currentMoment.subtract(1, 'month');
+  }
+  return currentMoment;
 };
 
 const activitiesSlice = createSlice({
@@ -25,12 +33,12 @@ const activitiesSlice = createSlice({
     errors: null,
     activities: [],
     monthRange: getMonthRange(
-      new Date().getMonth() + 1,
-      new Date().getFullYear()
+      getCurrentMonthAndYear().month() + 1,
+      getCurrentMonthAndYear().year()
     ),
     loading: false,
-    month: new Date().getMonth() + 1,
-    year: new Date().getFullYear(),
+    month: getCurrentMonthAndYear().month() + 1,
+    year: getCurrentMonthAndYear().year(),
   },
   reducers: {
     clearErrors: (state) => {

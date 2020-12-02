@@ -3,11 +3,11 @@
 /* eslint-disable no-restricted-globals */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint react/jsx-props-no-spreading: off */
-import { Button, Result, Spin } from 'antd';
+import { Spin } from 'antd';
 import { SpinProps } from 'antd/lib/spin';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Switch, Route, Redirect, useHistory } from 'react-router-dom';
+import { Switch, Route, Redirect } from 'react-router-dom';
 import App from './containers/App';
 import { logoutUser } from './features/login/login.store';
 import { RootState } from './store';
@@ -98,28 +98,12 @@ const MonthPage = (props: Record<string, string>) => {
   );
 };
 
-const RedirectButton = () => {
-  const history = useHistory();
-  return (
-    <Button type="primary" onClick={() => history.push('/login')}>
-      Авторизация
-    </Button>
-  );
-};
-
 const LogoutPage = () => {
   const dispatch = useDispatch();
   React.useEffect(() => {
     dispatch(logoutUser());
   }, []);
-  return (
-    <Result
-      status="403"
-      title=""
-      subTitle="Вы успешно вышли из системы."
-      extra={<RedirectButton />}
-    />
-  );
+  return <Redirect to="/login" />;
 };
 
 function PageRoutes() {

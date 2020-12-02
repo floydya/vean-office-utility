@@ -3,20 +3,41 @@ import UserAPI from '../../api/user.service';
 // eslint-disable-next-line import/no-cycle
 import { AppThunk, RootState } from '../../store';
 
-const getData = (name: string, defaultValue: string | null = null) => {
+const getData = <T>(name: string, defaultValue: T) => {
   return localStorage.getItem(name) || defaultValue;
+};
+
+const getBooleanData = (name: string, defaultValue: boolean) => {
+  return localStorage.getItem(name) === 'true' || defaultValue;
+};
+
+type UserType = {
+  id: number;
+} | null;
+
+interface SliceState {
+  token: string | null;
+  user: UserType;
+  errors: ErrorType;
+  username: string | null;
+  password: string | null;
+  loading: boolean;
+  remind: boolean;
+}
+
+const initialState: SliceState = {
+  token: getData('token', null),
+  user: null,
+  errors: null,
+  username: getData<string>('username', ''),
+  password: getData<string>('password', ''),
+  loading: false,
+  remind: getBooleanData('remind', false),
 };
 
 const authSlice = createSlice({
   name: 'auth',
-  initialState: {
-    token: getData('token'),
-    user: null,
-    errors: null,
-    username: getData('username', ''),
-    password: getData('password', ''),
-    loading: false,
-  },
+  initialState,
   reducers: {
     setUser: (state, data) => {
       state.user = data.payload;
@@ -49,6 +70,16 @@ const authSlice = createSlice({
     setLoading: (state, data) => {
       state.loading = data.payload;
     },
+    setRemind: (state, data) => {
+      state.remind = data.payload;
+      localStorage.setItem('remind', data.payload);
+    },
+    resetAuthentication: (state) => {
+      state.remind = false;
+      state.token = null;
+      localStorage.removeItem('token');
+      localStorage.removeItem('remind');
+    },
   },
 });
 
@@ -62,6 +93,8 @@ export const {
   setUsername,
   setPassword,
   setLoading,
+  setRemind,
+  resetAuthentication,
 } = authSlice.actions;
 
 export const authenticate = (): AppThunk => {
@@ -71,8 +104,8 @@ export const authenticate = (): AppThunk => {
     dispatch(setLoading(true));
     try {
       const [status, response] = await UserAPI.authorize({
-        username,
-        password,
+        username: username as string,
+        password: password as string,
       });
       if (status !== 200) {
         dispatch(setErrors(response));
@@ -92,7 +125,9 @@ export const fetchUser = (): AppThunk => {
   return async (dispatch, getState) => {
     try {
       const { token } = getState().auth;
-      const [status, response] = await UserAPI.fetchCurrentUser(token);
+      const [status, response] = await UserAPI.fetchCurrentUser(
+        token as string
+      );
       if (status !== 200) {
         dispatch(removeUser());
         dispatch(removeToken());

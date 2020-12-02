@@ -10,7 +10,9 @@ import MonthList from './MonthList';
 import MonthStatistic from './MonthStatistic';
 
 export default function MonthComponent() {
-  const { month, year } = useSelector((state: RootState) => state.activities);
+  const { month, year, loading } = useSelector(
+    (state: RootState) => state.activities
+  );
   const dispatch = useDispatch();
   React.useEffect(() => {
     dispatch(fetchActivities());
@@ -19,11 +21,13 @@ export default function MonthComponent() {
     <LayoutApp>
       <MonthHeaderFilter />
       <MonthStatistic />
-      <Collapse>
-        <Collapse.Panel header="Подробнее по каждому дню" key="1">
-          <MonthList />
-        </Collapse.Panel>
-      </Collapse>
+      {!loading && (
+        <Collapse>
+          <Collapse.Panel header="Подробнее по каждому дню" key="1">
+            <MonthList />
+          </Collapse.Panel>
+        </Collapse>
+      )}
     </LayoutApp>
   );
 }
