@@ -1,14 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/naming-convention */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 import * as React from 'react';
-import {
-  Button,
-  Card,
-  Form,
-  Statistic,
-  Timeline,
-  TimePicker,
-  Typography,
-} from 'antd';
+import { Button, Card, Form, Statistic, TimePicker, Typography } from 'antd';
 import { remote } from 'electron';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -24,12 +18,19 @@ function CurrentTimerComponent() {
   const { currentTime, status } = useSelector(
     (state: RootState) => state.activity
   );
+  const { hours_per_day } = useSelector((state: RootState) => state.settings);
   const dispatch = useDispatch();
   const timerRef = React.useRef<NodeJS.Timeout | null>(null);
   const tick = () => {
     timerRef.current = remote.getGlobal('setTimeout')(tick, 1000);
     dispatch(_Tick());
   };
+  // React.useEffect(() => {
+  //   const seconds_per_day = hours_per_day * 60 * 60
+  //   if (currentTime === seconds_per_day) {
+  //     window.notifyTimer()
+  //   }
+  // }, [currentTime]);
   React.useEffect(() => {
     if (status) {
       tick();
@@ -46,7 +47,7 @@ function CurrentTimerComponent() {
           tabIndex={0}
           key="timer"
           onClick={() => dispatch(toggleActivity())}
-          onKeyDown={() => dispatch(toggleActivity())}
+          // onKeyDown={() => dispatch(toggleActivity())}
         >
           <Typography.Title
             level={3}
@@ -60,8 +61,13 @@ function CurrentTimerComponent() {
     >
       <Statistic
         title="Таймер"
-        value={secondsToHms(currentTime)}
+        // prefix={<ClockCircleOutlined />}
+        value={`${secondsToHms(currentTime)}`}
         style={{ textAlign: 'center' }}
+        valueStyle={{
+          color: currentTime >= hours_per_day * 60 * 60 ? 'green' : 'white',
+        }}
+        suffix={` / ${hours_per_day} часов`}
       />
     </Card>
   );
@@ -122,37 +128,6 @@ function NotFinishedTimerComponent({
   );
 }
 
-const getLogActionDisplay = (action: string) => {
-  switch (action) {
-    case 'start':
-      return ['green', 'Рабочий день начат'];
-    case 'end':
-      return ['red', 'Пауза/Стоп'];
-    default:
-      return ['gray', 'Снят с паузы'];
-  }
-};
-
-const TodaysTimeline = () => {
-  const logs = useSelector((state: RootState) => state.activity.logs);
-  if (!logs.length) return null;
-  return (
-    <>
-      <Timeline mode="right">
-        {logs.map((log) => (
-          <Timeline.Item
-            key={log.created_at}
-            label={log.created_at}
-            color={getLogActionDisplay(log.action)[0]}
-          >
-            {getLogActionDisplay(log.action)[1]}
-          </Timeline.Item>
-        ))}
-      </Timeline>
-    </>
-  );
-};
-
 export default function TimerComponent({
   direction,
 }: {
@@ -163,7 +138,6 @@ export default function TimerComponent({
   return (
     <>
       <CurrentTimerComponent />
-      <TodaysTimeline />
     </>
   );
 }

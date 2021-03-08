@@ -10,7 +10,6 @@ const getMonthRange = (month: number, year: number) => {
     .set('month', month - 1)
     .set('year', year);
   const endMoment = currentMoment.clone().add(1, 'month');
-  // console.log(currentMoment, endMoment);
   const data = [];
   while (currentMoment.isBefore(endMoment)) {
     data.push(currentMoment.format('YYYY-MM-DD'));

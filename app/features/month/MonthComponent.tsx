@@ -16,6 +16,9 @@ export default function MonthComponent() {
   const dispatch = useDispatch();
   React.useEffect(() => {
     dispatch(fetchActivities());
+  }, []);
+  React.useEffect(() => {
+    dispatch(fetchActivities());
   }, [month, year]);
   return (
     <LayoutApp>

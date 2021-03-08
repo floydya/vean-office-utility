@@ -33,7 +33,7 @@ const Filter = () => {
             name="month"
             validateStatus={errors?.month && 'error'}
             help={errors?.month}
-            initialValue={month}
+            initialValue={{ value: `${month}` }}
             rules={[
               {
                 required: true,
@@ -45,6 +45,8 @@ const Filter = () => {
               loading={loading}
               style={{ width: '100%' }}
               onChange={(value) => dispatch(setMonth(value))}
+              labelInValue
+              // defaultValue={{value: `${month}`}}
             >
               <Select.Option value="1">Январь</Select.Option>
               <Select.Option value="2">Февраль</Select.Option>

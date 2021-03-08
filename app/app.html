@@ -40,11 +40,21 @@
         if (scripts.length) {
           document.write(
             scripts
-              .map(script => `<script defer src="${script}"><\/script>`)
+              .map((script) => `<script defer src="${script}"><\/script>`)
               .join('')
           );
         }
       }
+    </script>
+    <script>
+      const notifier = require('node-notifier');
+      window.notifyTimer = function () {
+        notifier.notify({
+          title: 'VeAn Tattoo',
+          message: 'Вы отработали свою норму!',
+          sound: true,
+        });
+      };
     </script>
   </body>
 </html>

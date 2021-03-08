@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import App from './containers/App';
 import { logoutUser } from './features/login/login.store';
+import { fetchActivity } from './features/home/home.store';
 import { RootState } from './store';
 
 // Lazily load routes and code split with webpack
@@ -106,18 +107,26 @@ const LogoutPage = () => {
   return <Redirect to="/login" />;
 };
 
-function PageRoutes() {
-  const { salary, hours_per_day } = useSelector(
-    (state: RootState) => state.settings
-  );
-  if (salary === null || hours_per_day === null)
-    return <Redirect to="/configuration" />;
+function PageRoutesExtended() {
+  const dispatch = useDispatch();
+  React.useEffect(() => {
+    dispatch(fetchActivity());
+  }, []);
   return (
     <Switch>
       <Route path="/" exact component={HomePage} />
       <Route path="/month" exact component={MonthPage} />
     </Switch>
   );
+}
+
+function PageRoutes() {
+  const { salary, hours_per_day } = useSelector(
+    (state: RootState) => state.settings
+  );
+  if (salary === null || hours_per_day === null)
+    return <Redirect to="/configuration" />;
+  return <PageRoutesExtended />;
 }
 
 export default function Routes() {

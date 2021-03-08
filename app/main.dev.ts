@@ -50,7 +50,6 @@ const getAssetPath = (...paths: string[]): string => {
 };
 
 let appIcon = null;
-let isQuiting: boolean;
 
 const createWindow = async () => {
   if (
@@ -66,7 +65,7 @@ const createWindow = async () => {
 
   mainWindow = new BrowserWindow({
     show: false,
-    width: 640,
+    width: 1024,
     height: 728,
     resizable: false,
     icon: getAssetPath('icon.png'),
@@ -80,14 +79,6 @@ const createWindow = async () => {
         : {
             preload: path.join(__dirname, 'dist/renderer.prod.js'),
           },
-  });
-
-  mainWindow.on('close', (event) => {
-    if (!isQuiting) {
-      event.preventDefault();
-      mainWindow?.hide();
-      event.returnValue = false;
-    }
   });
 
   const createTray = () => {
@@ -112,7 +103,6 @@ const createWindow = async () => {
       {
         label: 'Выйти',
         click() {
-          isQuiting = true;
           app.quit();
         },
       },

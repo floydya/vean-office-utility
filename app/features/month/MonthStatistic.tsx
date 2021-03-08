@@ -25,6 +25,21 @@ const countSalary = (
   return [salary_per_second * time, neededHours * 60 * 60];
 };
 
+const countNeededTime = (
+  hours_per_day: number,
+  monthRange: string[],
+  time: number
+) => {
+  const workDays = monthRange.filter((el: string) => {
+    const date = dayjs(el);
+    const weekDay = date.day();
+    if (date.diff(dayjs()) < 0) return weekDay > 0 && weekDay < 6;
+    return false;
+  });
+  const timeToWork = workDays.length * hours_per_day * 60 * 60 - time;
+  return [timeToWork, secondsToHms(Math.abs(timeToWork))];
+};
+
 interface HoursProps {
   time: number;
   neededTime: number;
@@ -60,6 +75,11 @@ export default function MonthStatistic() {
     (acc, next: ActivityType) => acc + next.spent_time,
     0
   );
+  const [timeToWork, timeToWorkHMS] = countNeededTime(
+    parseInt(hours_per_day as string, 10),
+    monthRange,
+    time
+  );
   const [gainedSalary, neededTime] = countSalary(
     parseInt(salary as string, 10),
     parseInt(hours_per_day as string, 10),
@@ -74,7 +94,7 @@ export default function MonthStatistic() {
       ]}
     >
       <Row gutter={16} style={{ margin: '16px 0' }}>
-        <Col span={11}>
+        <Col span={7}>
           <Statistic
             loading={loading}
             prefix={<ClockCircleOutlined />}
@@ -83,7 +103,19 @@ export default function MonthStatistic() {
             value={secondsToHms(time, false)}
           />
         </Col>
-        <Col span={11}>
+        <Col span={7}>
+          <Statistic
+            loading={loading}
+            style={{ textAlign: 'center' }}
+            title={timeToWork < 0 ? 'Переработано' : 'Нужно доработать'}
+            value={timeToWorkHMS}
+            prefix={<ClockCircleOutlined />}
+            valueStyle={{
+              color: timeToWork > 0 ? 'red' : 'green',
+            }}
+          />
+        </Col>
+        <Col span={7}>
           <Statistic
             loading={loading}
             style={{ textAlign: 'center' }}
@@ -99,7 +131,7 @@ export default function MonthStatistic() {
             suffix={` / ${salary}`}
           />
         </Col>
-        <Col span={2}>
+        <Col span={3}>
           <div
             style={{
               display: 'flex',
