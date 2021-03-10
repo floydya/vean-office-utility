@@ -1,7 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 import TimerAPI from '../../api/timer.service';
 // eslint-disable-next-line import/no-cycle
 import { AppThunk, RootState } from '../../store';
+
+dayjs.extend(customParseFormat);
 
 type NotFinishedType = { date: string } | null;
 interface ActivityLog {
@@ -10,6 +14,7 @@ interface ActivityLog {
 }
 interface SliceState {
   currentTime: number;
+  beforeResume: number;
   status: boolean;
   notFinished: NotFinishedType;
   finishedTime: string;
@@ -20,6 +25,7 @@ interface SliceState {
 
 const initialState: SliceState = {
   currentTime: 0,
+  beforeResume: 0,
   status: false,
   notFinished: null,
   finishedTime: '',
@@ -34,6 +40,9 @@ const activitySlice = createSlice({
   reducers: {
     setTime: (state, data) => {
       state.currentTime = data.payload;
+    },
+    setBeforeResume: (state, data) => {
+      state.beforeResume = data.payload;
     },
     setStatus: (state, data) => {
       state.status = data.payload;
@@ -51,7 +60,16 @@ const activitySlice = createSlice({
       state.logs = data.payload;
     },
     tick: (state) => {
-      state.currentTime += 1;
+      if (
+        state?.logs[0]?.created_at &&
+        ['start', 'resume'].includes(state?.logs[0]?.action)
+      ) {
+        const resumeSeconds = dayjs().diff(
+          dayjs(state.logs[0].created_at, 'DD.MM.YYYY HH:mm:ss'),
+          'second'
+        );
+        state.currentTime = state.beforeResume + resumeSeconds;
+      }
     },
     setNotFinished: (state, data) => {
       state.notFinished = data.payload;
@@ -61,6 +79,7 @@ const activitySlice = createSlice({
 
 export const {
   setTime,
+  setBeforeResume,
   setStatus,
   tick,
   setNotFinished,
@@ -75,6 +94,18 @@ const setActivityData = (data: Record<string, unknown>): AppThunk => {
     if (Object.keys(data).length > 0) {
       dispatch(setStatus(!data.is_ended));
       dispatch(setTime(data.spent_time));
+      let beforeResume;
+      if (['resume', 'start'].includes(data?.logs[0]?.action)) {
+        beforeResume =
+          data.spent_time -
+          dayjs().diff(
+            dayjs(data?.logs[0]?.created_at, 'DD.MM.YYYY HH:mm:ss'),
+            'second'
+          );
+      } else {
+        beforeResume = data.spent_time;
+      }
+      dispatch(setBeforeResume(beforeResume));
       dispatch(setLogs(data.logs));
     } else {
       dispatch(setTime(0));
@@ -108,6 +139,7 @@ export const toggleActivity = (): AppThunk => {
   return async (dispatch, getState) => {
     const { token } = getState().auth;
     try {
+      dispatch(setLoading(true));
       const currentDate = new Date().toISOString().substring(0, 10);
       const [status, response] = await TimerAPI.toggleTimer(
         token as string,
@@ -121,6 +153,7 @@ export const toggleActivity = (): AppThunk => {
     } catch (error) {
       // pass
     }
+    dispatch(setLoading(false));
   };
 };
 

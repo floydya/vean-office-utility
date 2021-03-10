@@ -15,8 +15,8 @@
     "lint-fix": "yarn --silent lint --fix; exit 0",
     "lint-styles": "stylelint --ignore-path .eslintignore '**/*.*(css|scss)' --syntax scss",
     "lint-styles-fix": "yarn --silent lint-styles --fix; exit 0",
-    "publish-p": "GH_TOKEN=0f3309f6a35140aeea47fc678927a138e5d9b312 electron-builder build -mw --publish always",
-    "package": "yarn build && electron-builder build --publish never",
+    "publish-p": "yarn build && cross-env GH_TOKEN=20fb93aec0f1dbbeeee07e3b40a4c772035fb688 electron-builder build -mw --publish always",
+    "package": "yarn build && electron-builder build -m --publish never",
     "package-all": "yarn build && electron-builder build -mw --publish never",
     "package-ci": "yarn postinstall && yarn build && electron-builder --publish always",
     "package-mac": "yarn build && electron-builder build --mac",
@@ -39,7 +39,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "cross-env NODE_ENV=development eslint --cache"
+      "cross-env NODE_ENV=development eslint --cache --fix"
     ],
     "{*.json,.{babelrc,eslintrc,prettierrc,stylelintrc}}": [
       "prettier --ignore-path .eslintignore --parser json --write"
@@ -85,17 +85,8 @@
         "github"
       ],
       "target": [
-        "nsis",
-        "zip"
+        "nsis"
       ]
-    },
-    "linux": {
-      "target": [
-        "deb",
-        "rpm",
-        "AppImage"
-      ],
-      "category": "Development"
     },
     "directories": {
       "buildResources": "resources",
@@ -113,7 +104,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/electron-react-boilerplate/electron-react-boilerplate.git"
+    "url": "git+https://github.com/floydya/vean-office-utility.git"
   },
   "author": {
     "name": "Electron React Boilerplate Maintainers",

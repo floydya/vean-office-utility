@@ -4,7 +4,7 @@ export const getApiURI = () => {
   if (process.env.NODE_ENV === 'production') {
     return 'https://crm.vean-tattoo.com';
   }
-  return 'http://localhost:8000';
+  return 'https://crm.vean-tattoo.com';
 };
 
 export const buildURI = (url: string) => {

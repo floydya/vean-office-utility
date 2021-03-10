@@ -2,12 +2,11 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import * as React from 'react';
-import { Button, Card, Form, Statistic, TimePicker, Typography } from 'antd';
-import { remote } from 'electron';
+import { Button, Card, Form, Statistic, TimePicker } from 'antd';
+import { FieldTimeOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   toggleActivity,
-  tick as _Tick,
   finishLastDay,
   setFinishedTime,
 } from '../features/home/home.store';
@@ -15,53 +14,29 @@ import { RootState } from '../store';
 import secondsToHms from '../utils/seconds';
 
 function CurrentTimerComponent() {
-  const { currentTime, status } = useSelector(
+  const { currentTime, status, loading } = useSelector(
     (state: RootState) => state.activity
   );
   const { hours_per_day } = useSelector((state: RootState) => state.settings);
   const dispatch = useDispatch();
-  const timerRef = React.useRef<NodeJS.Timeout | null>(null);
-  const tick = () => {
-    timerRef.current = remote.getGlobal('setTimeout')(tick, 1000);
-    dispatch(_Tick());
-  };
-  // React.useEffect(() => {
-  //   const seconds_per_day = hours_per_day * 60 * 60
-  //   if (currentTime === seconds_per_day) {
-  //     window.notifyTimer()
-  //   }
-  // }, [currentTime]);
-  React.useEffect(() => {
-    if (status) {
-      tick();
-    } else {
-      remote.getGlobal('clearTimeout')(timerRef.current);
-    }
-    return () => remote.getGlobal('clearTimeout')(timerRef.current);
-  }, [status]);
   return (
     <Card
       actions={[
-        <div
-          role="button"
-          tabIndex={0}
+        <Button
+          loading={loading}
           key="timer"
-          onClick={() => dispatch(toggleActivity())}
-          // onKeyDown={() => dispatch(toggleActivity())}
+          onClick={() => !loading && dispatch(toggleActivity())}
+          danger={!!status}
+          type="primary"
+          icon={<FieldTimeOutlined />}
+          size="large"
         >
-          <Typography.Title
-            level={3}
-            type={status ? 'danger' : 'success'}
-            style={{ marginBottom: '0' }}
-          >
-            {status ? 'Пауза' : 'Начать'}
-          </Typography.Title>
-        </div>,
+          {status ? 'Пауза' : 'Начать'}
+        </Button>,
       ]}
     >
       <Statistic
         title="Таймер"
-        // prefix={<ClockCircleOutlined />}
         value={`${secondsToHms(currentTime)}`}
         style={{ textAlign: 'center' }}
         valueStyle={{

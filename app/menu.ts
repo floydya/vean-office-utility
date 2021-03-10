@@ -1,4 +1,7 @@
 import { app, Menu, BrowserWindow, MenuItemConstructorOptions } from 'electron';
+import { autoUpdater } from 'electron-updater';
+
+const appVersion = require('./package.json').version;
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
@@ -50,25 +53,12 @@ export default class MenuBuilder {
     const subMenuAbout: DarwinMenuItemConstructorOptions = {
       label: 'VeAn Office Utility',
       submenu: [
-        // {
-        //   label: 'About ElectronReact',
-        //   selector: 'orderFrontStandardAboutPanel:',
-        // },
-        // { type: 'separator' },
-        // { label: 'Services', submenu: [] },
-        // { type: 'separator' },
-        // {
-        //   label: 'Hide ElectronReact',
-        //   accelerator: 'Command+H',
-        //   selector: 'hide:',
-        // },
-        // {
-        //   label: 'Hide Others',
-        //   accelerator: 'Command+Shift+H',
-        //   selector: 'hideOtherApplications:',
-        // },
-        // { label: 'Show All', selector: 'unhideAllApplications:' },
-        // { type: 'separator' },
+        {
+          label: `Version: ${appVersion}`,
+          click: () => {
+            autoUpdater.checkForUpdatesAndNotify();
+          },
+        },
         {
           label: 'Quit',
           accelerator: 'Command+Q',
@@ -143,8 +133,10 @@ export default class MenuBuilder {
         label: '&File',
         submenu: [
           {
-            label: '&Open',
-            accelerator: 'Ctrl+O',
+            label: `Version: ${appVersion}`,
+            click: () => {
+              autoUpdater.checkForUpdatesAndNotify();
+            },
           },
           {
             label: '&Close',

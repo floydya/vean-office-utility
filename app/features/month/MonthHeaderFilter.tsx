@@ -44,7 +44,7 @@ const Filter = () => {
             <Select
               loading={loading}
               style={{ width: '100%' }}
-              onChange={(value) => dispatch(setMonth(value))}
+              onChange={(option) => dispatch(setMonth(option.value))}
               labelInValue
               // defaultValue={{value: `${month}`}}
             >

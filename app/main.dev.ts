@@ -12,10 +12,18 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
 import { app, BrowserWindow, Menu, Tray } from 'electron';
-// import { autoUpdater } from 'electron-updater';
+import { autoUpdater } from 'electron-updater';
 import logger from 'electron-log';
-import Updater from 'update-electron-app';
+// import Updater from 'update-electron-app';
 import MenuBuilder from './menu';
+
+export default class AppUpdater {
+  constructor() {
+    logger.transports.file.level = 'info';
+    autoUpdater.logger = logger;
+    autoUpdater.checkForUpdatesAndNotify();
+  }
+}
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -155,11 +163,14 @@ const createWindow = async () => {
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 
-  Updater({
-    repo: 'floydya/vean-office-utility',
-    updateInterval: '10 minutes',
-    logger,
-  });
+  // eslint-disable-next-line no-new
+  new AppUpdater();
+
+  // Updater({
+  //   repo: 'floydya/vean-office-utility',
+  //   updateInterval: '10 minutes',
+  //   logger,
+  // });
 };
 
 /**
