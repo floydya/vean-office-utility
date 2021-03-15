@@ -17,6 +17,7 @@ function Header() {
   const location = useSelector(
     (state: RootState) => state.router.location.pathname
   );
+  const user = useSelector((state: RootState) => state.auth.user)
   const remind = useSelector((state: RootState) => state.auth.remind);
   const history = useHistory();
   return (
@@ -29,6 +30,7 @@ function Header() {
     >
       <Menu.Item key="/">Главная</Menu.Item>
       <Menu.Item key="/month">Месяц</Menu.Item>
+      {user?.is_superuser && <Menu.Item key="/impostor">Офис</Menu.Item>}
       <Menu.Item key="/settings" style={{ marginLeft: 'auto' }}>
         Настройки
       </Menu.Item>

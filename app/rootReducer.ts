@@ -5,6 +5,7 @@ import { History } from 'history';
 import authReducer from './features/login/login.store';
 // eslint-disable-next-line import/no-cycle
 import activityReducer from './features/home/home.store';
+import impostorReducer from './features/impostor/impostor.store';
 // eslint-disable-next-line import/no-cycle
 import activitiesReducer from './features/month/month.store';
 import settingsReducer from './features/settings/settings.store';
@@ -16,6 +17,7 @@ export default function createRootReducer(history: History) {
     activity: activityReducer,
     activities: activitiesReducer,
     settings: settingsReducer,
+    impostor: impostorReducer,
     // counter: counterReducer,
   });
 }

@@ -1,12 +1,12 @@
 {
-  "name": "electron-react-boilerplate",
-  "productName": "electron-react-boilerplate",
-  "version": "2.1.6",
-  "description": "Electron application boilerplate based on React, React Router, Webpack, React Hot Loader for rapid application development",
+  "name": "vean-office-utility",
+  "productName": "vean-office-utility",
+  "version": "2.1.8",
+  "description": "VeAn Tattoo Office Utility",
   "main": "./main.prod.js",
   "author": {
     "name": "Vlad Galatskiy",
-    "email": "vime.yusha@gmail.com",
+    "email": "xfloydya@gmail.com",
     "url": "https://github.com/floydya"
   },
   "scripts": {

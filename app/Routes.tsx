@@ -26,6 +26,10 @@ const LazyMonthPage = React.lazy(() =>
   import(/* webpackChunkName: "MonthPage" */ './containers/MonthPage')
 );
 
+const LazyImpostorPage = React.lazy(() =>
+  import(/* webpackChunkName: "ImpostorPage" */ './containers/ImpostorPage')
+);
+
 const LazySettingsPage = React.lazy(() =>
   import(/* webpackChunkName: "SettingsPage" */ './containers/SettingsPage')
 );
@@ -99,6 +103,17 @@ const MonthPage = (props: Record<string, string>) => {
   );
 };
 
+const ImpostorPage = (props: Record<string, string>) => {
+  const token = useSelector((state: RootState) => state.auth.token);
+  if (!token) return <Redirect to="/" />;
+  return (
+    <React.Suspense fallback={<Loading tip="Загрузка..." />}>
+      <LazyImpostorPage {...props} />
+    </React.Suspense>
+  )
+}
+
+
 const LogoutPage = () => {
   const dispatch = useDispatch();
   React.useEffect(() => {
@@ -116,6 +131,7 @@ function PageRoutesExtended() {
     <Switch>
       <Route path="/" exact component={HomePage} />
       <Route path="/month" exact component={MonthPage} />
+      <Route path="/impostor" exact component={ImpostorPage} />
     </Switch>
   );
 }

@@ -11,6 +11,21 @@ export const buildURI = (url: string) => {
   return `${getApiURI()}${url}`;
 };
 
+export const getFetchConfiguration = async (
+  token: string,
+  externalData: Record<string, unknown> = {}
+) => {
+  return {
+    ...externalData,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+      'X-Hardware-ID': await machineId(),
+      ...externalData.headers,
+    },
+  };
+}
+
 export default { getApiURI };
 
 export class BaseAPI {
@@ -18,14 +33,6 @@ export class BaseAPI {
     token: string,
     externalData: Record<string, unknown> = {}
   ) {
-    return {
-      ...externalData,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-        'X-Hardware-ID': await machineId(),
-        ...externalData.headers,
-      },
-    };
+    return await getFetchConfiguration(token, externalData);
   }
 }

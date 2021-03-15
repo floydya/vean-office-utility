@@ -1,0 +1,7 @@
+.refresh {
+  font-size: 1.5rem;
+  color: #177ddc;
+}
+.refresh:hover {
+  color: white;
+}
