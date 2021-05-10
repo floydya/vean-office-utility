@@ -22,7 +22,7 @@ const countSalary = (
   const neededHours = workDays.length * hours_per_day;
   const salary_per_hour = salary / neededHours;
   const salary_per_second = salary_per_hour / 60 / 60;
-  return [salary_per_second * time, neededHours * 60 * 60];
+  return [salary_per_second * time, neededHours * 60 * 60, salary_per_hour];
 };
 
 const countNeededTime = (
@@ -80,7 +80,7 @@ export default function MonthStatistic() {
     monthRange,
     time
   );
-  const [gainedSalary, neededTime] = countSalary(
+  const [gainedSalary, neededTime, perHour] = countSalary(
     parseInt(salary as string, 10),
     parseInt(hours_per_day as string, 10),
     monthRange,
@@ -88,13 +88,19 @@ export default function MonthStatistic() {
   );
   return (
     <Card
+      className="monthCard"
       style={{ marginBottom: '32px' }}
       actions={[
         <HoursTooltip key="hours" time={time} neededTime={neededTime} />,
+        <ReloadOutlined
+          key="refresh"
+          className={classes.refresh}
+          onClick={() => dispatch(fetchActivities())}
+        />,
       ]}
     >
       <Row gutter={16} style={{ margin: '16px 0' }}>
-        <Col span={7}>
+        <Col span={6}>
           <Statistic
             loading={loading}
             prefix={<ClockCircleOutlined />}
@@ -103,7 +109,7 @@ export default function MonthStatistic() {
             value={secondsToHms(time, false)}
           />
         </Col>
-        <Col span={7}>
+        <Col span={6}>
           <Statistic
             loading={loading}
             style={{ textAlign: 'center' }}
@@ -115,7 +121,7 @@ export default function MonthStatistic() {
             }}
           />
         </Col>
-        <Col span={7}>
+        <Col span={6}>
           <Statistic
             loading={loading}
             style={{ textAlign: 'center' }}
@@ -131,20 +137,15 @@ export default function MonthStatistic() {
             suffix={` / ${salary}`}
           />
         </Col>
-        <Col span={3}>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: '100%',
-            }}
-          >
-            <ReloadOutlined
-              className={classes.refresh}
-              onClick={() => dispatch(fetchActivities())}
-            />
-          </div>
+        <Col span={6}>
+          <Statistic
+            loading={loading}
+            style={{ textAlign: 'center' }}
+            title="Ставка"
+            value={perHour.toFixed(2)}
+            prefix="₴"
+            suffix={` / час`}
+          />
         </Col>
       </Row>
     </Card>

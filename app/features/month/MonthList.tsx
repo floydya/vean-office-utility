@@ -40,7 +40,7 @@ const ActivityDayComponent: React.FC<ActivityDayProps> = ({ date }) => {
         }
         extra={selectedDate ? secondsToHms(selectedDate.spent_time) : null}
         style={{
-          backgroundColor: isWeekend ? 'rgba(255,255,255,0.175)' : null,
+          backgroundColor: isWeekend ? 'rgba(255,255,255,0.175)' : '',
         }}
         onClick={setIsModalVisible.bind(null, true)}
       >
