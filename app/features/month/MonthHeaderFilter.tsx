@@ -52,7 +52,7 @@ const Filter = () => {
               <Select.Option value="2">Февраль</Select.Option>
               <Select.Option value="3">Март</Select.Option>
               <Select.Option value="4">Апрель</Select.Option>
-              <Select.Option value="5">Март</Select.Option>
+              <Select.Option value="5">Май</Select.Option>
               <Select.Option value="6">Июнь</Select.Option>
               <Select.Option value="7">Июль</Select.Option>
               <Select.Option value="8">Август</Select.Option>

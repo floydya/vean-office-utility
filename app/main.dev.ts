@@ -11,10 +11,9 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import { app, BrowserWindow, ipcMain, Menu, Tray } from 'electron';
+import { app, BrowserWindow, Menu, Tray } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import logger from 'electron-log';
-// import Updater from 'update-electron-app';
 import MenuBuilder from './menu';
 
 export default class AppUpdater {
@@ -66,10 +65,6 @@ const createWindow = async () => {
   ) {
     await installExtensions();
   }
-
-  // app.setLoginItemSettings({
-  //   openAtLogin: Boolean(localStorage.getItem('openAtLogin') || false),
-  // });
 
   mainWindow = new BrowserWindow({
     show: false,
@@ -165,12 +160,6 @@ const createWindow = async () => {
 
   // eslint-disable-next-line no-new
   new AppUpdater();
-
-  // Updater({
-  //   repo: 'floydya/vean-office-utility',
-  //   updateInterval: '10 minutes',
-  //   logger,
-  // });
 };
 
 /**
@@ -193,7 +182,5 @@ if (process.env.E2E_BUILD === 'true') {
 }
 
 app.on('activate', () => {
-  // On macOS it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) createWindow();
 });

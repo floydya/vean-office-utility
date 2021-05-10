@@ -4,7 +4,7 @@ import { getApiURI } from '../../api/config';
 // eslint-disable-next-line import/no-cycle
 import { AppThunk } from '../../store';
 
-const getMonthRange = (month: number, year: number) => {
+const getMonthRange = (month: number, year: number): string[] => {
   let currentMoment = dayjs()
     .set('date', 10)
     .set('month', month - 1)
@@ -26,19 +26,52 @@ const getCurrentMonthAndYear = () => {
   return currentMoment;
 };
 
+type APIErrors = {
+  non_field_errors?: string;
+  month?: string;
+  year?: string;
+};
+
+interface DateUserActivity {
+  id: number;
+  user: number;
+  date: string;
+  start_at: string;
+  end_at?: string;
+  is_ended: boolean;
+  logs: {
+    created_by: number;
+    created_at: string;
+    action: 'start' | 'resume' | 'end';
+  }[];
+  spent_time: number;
+  parlor?: number;
+}
+
+interface SliceState {
+  errors: APIErrors | null;
+  activities: DateUserActivity[];
+  monthRange: string[];
+  loading: boolean;
+  month: number;
+  year: number;
+}
+
+const initialState: SliceState = {
+  errors: null,
+  activities: [],
+  monthRange: getMonthRange(
+    getCurrentMonthAndYear().month() + 1,
+    getCurrentMonthAndYear().year()
+  ),
+  loading: false,
+  month: getCurrentMonthAndYear().month() + 1,
+  year: getCurrentMonthAndYear().year(),
+};
+
 const activitiesSlice = createSlice({
   name: 'activities',
-  initialState: {
-    errors: null,
-    activities: [],
-    monthRange: getMonthRange(
-      getCurrentMonthAndYear().month() + 1,
-      getCurrentMonthAndYear().year()
-    ),
-    loading: false,
-    month: getCurrentMonthAndYear().month() + 1,
-    year: getCurrentMonthAndYear().year(),
-  },
+  initialState,
   reducers: {
     clearErrors: (state) => {
       state.errors = null;
@@ -80,7 +113,7 @@ export const fetchActivities = (): AppThunk => {
       const { monthRange } = getState().activities;
       const [first, last] = [monthRange[0], monthRange[monthRange.length - 1]];
       const query = new URLSearchParams({
-        user: user.id,
+        user: user.id.toString(),
         date_after: first,
         date_before: last,
       }).toString();
