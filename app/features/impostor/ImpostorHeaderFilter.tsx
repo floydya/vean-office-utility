@@ -1,56 +1,83 @@
-import { Select, PageHeader, InputNumber, Descriptions, Button, Modal } from 'antd';
+import { Select, PageHeader, InputNumber, Descriptions } from 'antd';
 import * as React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setMonth, setYear, setEmployee, fetchEmployees, setSalary, setHoursPerDay } from './impostor.store';
-import { RootState } from '../../store';
 import dayjs from 'dayjs';
 import ru from 'dayjs/locale/ru';
+import {
+  setMonth,
+  setYear,
+  setEmployee,
+  fetchEmployees,
+  setSalary,
+  setHoursPerDay,
+} from './impostor.store';
+import { RootState } from '../../store';
 
 dayjs.locale(ru);
 
-const groupBy = function(arr, key) {
-  return arr.reduce(function(rv, x) {
+const groupBy = (arr, key) => {
+  return arr.reduce((rv, x) => {
     (rv[x[key]] = rv[x[key]] || []).push(x);
     return rv;
   }, {});
 };
 
 const EmployeeSelect = () => {
-  const {employee, employees, loading} = useSelector((state: RootState) => state.impostor);
-  const currentEmployee = React.useMemo(() => employees.find(el => el.id === employee), [employee, employees]);
-  const groupedEmployees = React.useMemo(() => groupBy(employees, "role"), [employees]);
+  const { employee, employees, loading } = useSelector(
+    (state: RootState) => state.impostor
+  );
+  const currentEmployee = React.useMemo(
+    () => employees.find((el) => el.id === employee),
+    [employee, employees]
+  );
+  const groupedEmployees = React.useMemo(
+    () => groupBy(employees, 'role'),
+    [employees]
+  );
   const dispatch = useDispatch();
   React.useEffect(() => {
     dispatch(fetchEmployees());
   }, []);
-  return <>
+  return (
+    <>
       <Select
         loading={loading}
         style={{ width: '100%' }}
         labelInValue
-        defaultValue={employee ? {value: employee, label: currentEmployee.get_full_name} : undefined}
+        defaultValue={
+          employee
+            ? { value: employee, label: currentEmployee.get_full_name }
+            : undefined
+        }
         onChange={(option) => dispatch(setEmployee(option.value))}
       >
         {Object.entries(groupedEmployees).map(([role, empls]) => (
-          <Select.OptGroup label={role}>
-            {empls.map(empl => (
-              <Select.Option value={empl.id} key={empl.id}>{empl.get_full_name}</Select.Option>
+          <Select.OptGroup
+            key={empls.map((el) => el.id).join(',')}
+            label={role}
+          >
+            {empls.map((empl) => (
+              <Select.Option value={empl.id} key={empl.id}>
+                {empl.get_full_name}
+              </Select.Option>
             ))}
           </Select.OptGroup>
         ))}
       </Select>
-  </>
-}
+    </>
+  );
+};
 
-const MonthSelect = ({formatDay}: {formatDay: dayjs.Dayjs}) => {
-  const {month, loading} = useSelector((state: RootState) => state.impostor);
+const MonthSelect = ({ formatDay }: { formatDay: dayjs.Dayjs }) => {
+  const { month, loading } = useSelector((state: RootState) => state.impostor);
   const dispatch = useDispatch();
-  return <>
+  return (
+    <>
       <Select
         loading={loading}
         style={{ width: '100%' }}
         labelInValue
-        defaultValue={{value: month, label: formatDay.format("MMMM")}}
+        defaultValue={{ value: month, label: formatDay.format('MMMM') }}
         onChange={(option) => dispatch(setMonth(option.value))}
       >
         <Select.Option value="1">Январь</Select.Option>
@@ -66,13 +93,15 @@ const MonthSelect = ({formatDay}: {formatDay: dayjs.Dayjs}) => {
         <Select.Option value="11">Ноябрь</Select.Option>
         <Select.Option value="12">Декабрь</Select.Option>
       </Select>
-  </>
-}
+    </>
+  );
+};
 
-const YearSelect = ({formatDay}: {formatDay: dayjs.Dayjs}) => {
-  const {year, loading} = useSelector((state: RootState) => state.impostor);
+const YearSelect = () => {
+  const { year, loading } = useSelector((state: RootState) => state.impostor);
   const dispatch = useDispatch();
-  return <>
+  return (
+    <>
       <Select
         loading={loading}
         style={{ width: '100%' }}
@@ -84,32 +113,54 @@ const YearSelect = ({formatDay}: {formatDay: dayjs.Dayjs}) => {
         <Select.Option value="2021">2021</Select.Option>
         <Select.Option value="2022">2022</Select.Option>
       </Select>
-  </>
-}
+    </>
+  );
+};
 
 export default function MonthHeaderFilter() {
-  const {
-    month, year, salary, hoursPerDay
-  } = useSelector((state: RootState) => state.impostor);
+  const { month, year, salary, hoursPerDay } = useSelector(
+    (state: RootState) => state.impostor
+  );
   const dispatch = useDispatch();
-  const formatDay = React.useMemo(() => dayjs(`${year}-${month}-01`), [year, month]);
-  return <PageHeader title={null}>
-    <Descriptions labelStyle={{alignItems: "center", width: '100px'}} contentStyle={{alignItems: "center", padding: "0 10px"}} size="small" column={2}>
-      <Descriptions.Item span={2} label="Сотрудник">
-        <EmployeeSelect />
-      </Descriptions.Item>
-      <Descriptions.Item label="Месяц" style={{ textTransform: "capitalize" }}>
-        <MonthSelect formatDay={formatDay} />
-      </Descriptions.Item>
-      <Descriptions.Item label="Год">
-        <YearSelect formatDay={formatDay} />
-      </Descriptions.Item>
-      <Descriptions.Item label="Ставка">
-        <InputNumber style={{ width: '100%' }} value={salary ? salary : undefined} onChange={(value) => dispatch(setSalary(value))} />
-      </Descriptions.Item>
-      <Descriptions.Item label="Часов в день">
-        <InputNumber style={{ width: '100%' }} value={hoursPerDay ? hoursPerDay : undefined} onChange={(value) => dispatch(setHoursPerDay(value))} />
-      </Descriptions.Item>
-    </Descriptions>
-  </PageHeader>;
+  const formatDay = React.useMemo(
+    () => dayjs(`${year}-${month}-01`),
+    [year, month]
+  );
+  return (
+    <PageHeader title={null}>
+      <Descriptions
+        labelStyle={{ alignItems: 'center', width: '100px' }}
+        contentStyle={{ alignItems: 'center', padding: '0 10px' }}
+        size="small"
+        column={2}
+      >
+        <Descriptions.Item span={2} label="Сотрудник">
+          <EmployeeSelect />
+        </Descriptions.Item>
+        <Descriptions.Item
+          label="Месяц"
+          style={{ textTransform: 'capitalize' }}
+        >
+          <MonthSelect formatDay={formatDay} />
+        </Descriptions.Item>
+        <Descriptions.Item label="Год">
+          <YearSelect />
+        </Descriptions.Item>
+        <Descriptions.Item label="Ставка">
+          <InputNumber
+            style={{ width: '100%' }}
+            value={salary || undefined}
+            onChange={(value) => dispatch(setSalary(value))}
+          />
+        </Descriptions.Item>
+        <Descriptions.Item label="Часов в день">
+          <InputNumber
+            style={{ width: '100%' }}
+            value={hoursPerDay || undefined}
+            onChange={(value) => dispatch(setHoursPerDay(value))}
+          />
+        </Descriptions.Item>
+      </Descriptions>
+    </PageHeader>
+  );
 }
