@@ -1,0 +1,88 @@
+.wallet {
+  height: 100%;
+  background-color: #0f0f0f;
+  border-top-left-radius: inherit;
+  border-bottom-left-radius: inherit;
+}
+
+.walletHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 50px 50px 0;
+}
+
+.wallet h2 {
+  display: inline-block;
+  margin: 0;
+}
+
+.cards {
+  /* padding: 50px; */
+
+  /* height: 590px; */
+
+  /* overflow-x: hidden; */
+
+  /* overflow-y: auto; */
+}
+
+.creditCard {
+  outline: none;
+  padding: 15px;
+  margin: 25px 35px;
+  background-color: #222;
+  border-radius: 3px;
+  border: 1px solid #e1e1e1;
+  font-family: 'Roboto', sans-serif;
+  cursor: pointer;
+  transition: 0.1s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cardInfo {
+  display: flex;
+  align-items: center;
+}
+
+.cardBalance::before {
+  content: '₴';
+}
+
+.creditCard + .creditCard {
+  margin-top: 20px;
+}
+
+.creditCard:hover {
+  transform: scale(1.07);
+}
+
+.creditCardActive {
+  border-color: #177ddc;
+  border-width: 3px;
+}
+
+.disabledCard {
+  opacity: 0.5;
+}
+
+.cardId {
+  padding: 5px 10px;
+  background-color: #ce0b0b;
+  margin-right: 25px;
+}
+
+.addWallet {
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.addWallet + .addWallet {
+  margin-left: 15px;
+}
+
+.addWallet:hover {
+  color: #177ddc;
+}

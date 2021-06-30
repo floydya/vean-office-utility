@@ -14,30 +14,44 @@ import { fetchActivity } from './features/home/home.store';
 import { RootState } from './store';
 
 // Lazily load routes and code split with webpack
-const LazyLoginPage = React.lazy(() =>
-  import(/* webpackChunkName: "LoginPage" */ './containers/LoginPage')
+const LazyLoginPage = React.lazy(
+  () => import(/* webpackChunkName: "LoginPage" */ './containers/LoginPage')
 );
 
-const LazyHomePage = React.lazy(() =>
-  import(/* webpackChunkName: "HomePage" */ './containers/HomePage')
+const LazyHomePage = React.lazy(
+  () => import(/* webpackChunkName: "HomePage" */ './containers/HomePage')
 );
 
-const LazyMonthPage = React.lazy(() =>
-  import(/* webpackChunkName: "MonthPage" */ './containers/MonthPage')
+const LazyMonthPage = React.lazy(
+  () => import(/* webpackChunkName: "MonthPage" */ './containers/MonthPage')
 );
 
-const LazyImpostorPage = React.lazy(() =>
-  import(/* webpackChunkName: "ImpostorPage" */ './containers/ImpostorPage')
+const LazyImpostorPage = React.lazy(
+  () =>
+    import(/* webpackChunkName: "ImpostorPage" */ './containers/ImpostorPage')
 );
 
-const LazySettingsPage = React.lazy(() =>
-  import(/* webpackChunkName: "SettingsPage" */ './containers/SettingsPage')
+const LazySettingsPage = React.lazy(
+  () =>
+    import(/* webpackChunkName: "SettingsPage" */ './containers/SettingsPage')
 );
 
-const LazyConfigurationPage = React.lazy(() =>
-  import(
-    /* webpackChunkName: "ConfigurationPage" */ './containers/ConfigurationPage'
-  )
+const LazyConfigurationPage = React.lazy(
+  () =>
+    import(
+      /* webpackChunkName: "ConfigurationPage" */ './containers/ConfigurationPage'
+    )
+);
+
+const LazyWalletsPage = React.lazy(
+  () => import(/* webpackChunkName: "WalletsPage" */ './containers/WalletsPage')
+);
+
+const LazyIncomingPaymentsPage = React.lazy(
+  () =>
+    import(
+      /* webpackChunkName: "IncomingPaymentsPage" */ './containers/IncomingPaymentsPage'
+    )
 );
 
 const Loading: React.FC<SpinProps> = (props) => (
@@ -110,9 +124,28 @@ const ImpostorPage = (props: Record<string, string>) => {
     <React.Suspense fallback={<Loading tip="Загрузка..." />}>
       <LazyImpostorPage {...props} />
     </React.Suspense>
-  )
-}
+  );
+};
 
+const WalletsPage = (props: Record<string, string>) => {
+  const token = useSelector((state: RootState) => state.auth.token);
+  if (!token) return <Redirect to="/" />;
+  return (
+    <React.Suspense fallback={<Loading tip="Загрузка..." />}>
+      <LazyWalletsPage {...props} />
+    </React.Suspense>
+  );
+};
+
+const IncomingPaymentsPage = (props: Record<string, string>) => {
+  const token = useSelector((state: RootState) => state.auth.token);
+  if (!token) return <Redirect to="/" />;
+  return (
+    <React.Suspense fallback={<Loading tip="Загрузка..." />}>
+      <LazyIncomingPaymentsPage {...props} />
+    </React.Suspense>
+  );
+};
 
 const LogoutPage = () => {
   const dispatch = useDispatch();
@@ -132,6 +165,8 @@ function PageRoutesExtended() {
       <Route path="/" exact component={HomePage} />
       <Route path="/month" exact component={MonthPage} />
       <Route path="/impostor" exact component={ImpostorPage} />
+      <Route path="/wallets" exact component={WalletsPage} />
+      <Route path="/incomingPayments" exact component={IncomingPaymentsPage} />
     </Switch>
   );
 }

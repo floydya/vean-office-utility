@@ -13,6 +13,7 @@ const getBooleanData = (name: string, defaultValue: boolean) => {
 
 type UserType = {
   id: number;
+  is_superuser: boolean;
 } | null;
 
 interface SliceState {

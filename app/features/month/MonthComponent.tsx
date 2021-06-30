@@ -15,11 +15,6 @@ export default function MonthComponent() {
   );
   const dispatch = useDispatch();
   React.useEffect(() => {
-    setTimeout(() => {
-      dispatch(fetchActivities());
-    }, 500);
-  }, []);
-  React.useEffect(() => {
     dispatch(fetchActivities());
   }, [month, year]);
   return (

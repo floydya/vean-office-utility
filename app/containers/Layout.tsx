@@ -1,3 +1,5 @@
+/* eslint-disable react/destructuring-assignment */
+/* eslint-disable react/require-default-props */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Alert, Layout, Menu } from 'antd';
@@ -11,13 +13,14 @@ import { tick as _Tick } from '../features/home/home.store';
 
 type Props = {
   children: ReactNode;
+  contentStyle?: unknown;
 };
 
 function Header() {
   const location = useSelector(
     (state: RootState) => state.router.location.pathname
   );
-  const user = useSelector((state: RootState) => state.auth.user)
+  const user = useSelector((state: RootState) => state.auth.user);
   const remind = useSelector((state: RootState) => state.auth.remind);
   const history = useHistory();
   return (
@@ -30,7 +33,11 @@ function Header() {
     >
       <Menu.Item key="/">Главная</Menu.Item>
       <Menu.Item key="/month">Месяц</Menu.Item>
-      {user?.is_superuser && <Menu.Item key="/impostor">Офис</Menu.Item>}
+      {user?.is_superuser && <Menu.Item key="/impostor">Сотрудники</Menu.Item>}
+      {user?.is_superuser && <Menu.Item key="/wallets">Баланс офиса</Menu.Item>}
+      {user?.is_superuser && (
+        <Menu.Item key="/incomingPayments">Входящие платежи</Menu.Item>
+      )}
       <Menu.Item key="/settings" style={{ marginLeft: 'auto' }}>
         Настройки
       </Menu.Item>
@@ -135,7 +142,7 @@ export default function LayoutApp(props: Props) {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   return (
-    <Layout>
+    <Layout style={{ height: '100%' }}>
       {online === false && (
         <Alert
           type="error"
@@ -146,7 +153,9 @@ export default function LayoutApp(props: Props) {
       <Layout.Header>
         <Header />
       </Layout.Header>
-      <Layout.Content style={{ padding: '15px' }}>{children}</Layout.Content>
+      <Layout.Content style={{ padding: '15px', ...props.contentStyle }}>
+        {children}
+      </Layout.Content>
     </Layout>
   );
 }

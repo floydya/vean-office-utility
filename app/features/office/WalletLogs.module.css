@@ -1,0 +1,82 @@
+.wrapper {
+  padding: 20px;
+  background-color: #242424;
+}
+
+.balance {
+  --size: 1.6rem;
+
+  font-size: var(--size);
+  line-height: calc(var(--size) * 1.61);
+}
+
+.logsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px rgba(255, 255, 255, 0.3) solid;
+}
+.logsContent {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 0 0;
+}
+
+.transaction {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+}
+
+.transaction + .transaction {
+  border-top: 1px #555 solid;
+}
+
+.transactionAmount {
+  margin: 0;
+}
+.transactionAmount::before {
+  content: '₴';
+}
+
+.canceled {
+  opacity: 0.3;
+}
+
+.deposit .transactionAmount {
+  color: green;
+}
+
+.withdraw .transactionAmount {
+  color: #ce0b0b;
+}
+
+.transactionInfo {
+  display: flex;
+  align-items: center;
+}
+
+.transactionAmountContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin-right: 25px;
+}
+
+.transactionId {
+  padding: 5px 0;
+  width: 100px;
+  text-align: center;
+  border-radius: 3px;
+}
+
+.withdraw .transactionId {
+  background-color: #ce0b0b;
+}
+
+.deposit .transactionId {
+  background-color: green;
+}

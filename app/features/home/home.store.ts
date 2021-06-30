@@ -119,11 +119,7 @@ export const fetchActivity = (): AppThunk => {
   return async (dispatch, getState) => {
     const { token } = getState().auth;
     try {
-      const currentDate = new Date().toISOString().substring(0, 10);
-      const [status, response] = await TimerAPI.fetchTimer(
-        token as string,
-        currentDate
-      );
+      const [status, response] = await TimerAPI.fetchTimer(token as string);
       if (status !== 200) {
         // pass
       } else {
@@ -140,11 +136,7 @@ export const toggleActivity = (): AppThunk => {
     const { token } = getState().auth;
     try {
       dispatch(setLoading(true));
-      const currentDate = new Date().toISOString().substring(0, 10);
-      const [status, response] = await TimerAPI.toggleTimer(
-        token as string,
-        currentDate
-      );
+      const [status, response] = await TimerAPI.toggleTimer(token as string);
       if (status === 201) {
         dispatch(setActivityData(response));
       } else if (status === 405) {

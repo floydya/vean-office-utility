@@ -1,17 +1,17 @@
 import { BaseAPI, buildURI } from './config';
 
 export default class TimerAPI extends BaseAPI {
-  static async fetchTimer(token: string, date: string) {
+  static async fetchTimer(token: string) {
     const response = await fetch(
-      buildURI(`/api/v1/activity/${date}`),
+      buildURI(`/api/v1/activity/`),
       await this.getFetchConfiguration(token)
     );
     return [response.status, await response.json()];
   }
 
-  static async toggleTimer(token: string, date: string) {
+  static async toggleTimer(token: string) {
     const response = await fetch(
-      buildURI(`/api/v1/activity/${date}/`),
+      buildURI(`/api/v1/activity/`),
       await this.getFetchConfiguration(token, { method: 'POST' })
     );
     return [response.status, await response.json()];

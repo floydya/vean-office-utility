@@ -4,7 +4,7 @@ export const getApiURI = () => {
   if (process.env.NODE_ENV === 'production') {
     return 'https://crm.vean-tattoo.com';
   }
-  return 'https://crm.vean-tattoo.com';
+  return 'http://0.0.0.0:8000';
 };
 
 export const buildURI = (url: string) => {
@@ -24,15 +24,15 @@ export const getFetchConfiguration = async (
       ...externalData.headers,
     },
   };
-}
+};
 
 export default { getApiURI };
 
 export class BaseAPI {
-  static async getFetchConfiguration(
+  static getFetchConfiguration(
     token: string,
     externalData: Record<string, unknown> = {}
   ) {
-    return await getFetchConfiguration(token, externalData);
+    return getFetchConfiguration(token, externalData);
   }
 }
